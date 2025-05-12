@@ -20,7 +20,7 @@ git submodule update --init --recursive
 ### fairchem
 
 - **Documentation** (upstream):  
-  https://github.com/Open-Catalyst-Project/fairchem#readme
+  https://github.com/facebookresearch/fairchem#readme
 
 - **Source (pinned)**:  
   https://github.com/QsenQY/fairchem/tree/977a80328f2be44649b414a9907a1d6ef2f81e95
