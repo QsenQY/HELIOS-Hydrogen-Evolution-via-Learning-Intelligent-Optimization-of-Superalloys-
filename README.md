@@ -105,7 +105,49 @@ python add_adsorbate.py \
 - `--dist_thr`    : Max interatomic distance in Å for bridge/hollow site detection (default: 3.0)  
 - `--margin`      : Minimum height margin above the original surface in Å (default: 0.2)  
 - `--adsorbate`   : Adsorbate element symbol (currently supports only `H` or `O`, default: `H`; support for other species coming soon)  
- 
+
+### Quickstart: Batch Prediction with fairchem (no `main()`)
+
+```python
+#!/usr/bin/env python3
+from fairchem.core import OCPCalculator
+from ase.io import read
+import pandas as pd
+import os
+
+# ─── User settings ─────────────────────────────────────────
+input_dir  = "data/HEA-adsorbate"          # your folder of .vasp models
+output_csv = "results/predictions.csv"     # where to save predictions
+# ────────────────────────────────────────────────────────────
+
+# 1. Initialize the pretrained EquiformerV2 model
+calc = OCPCalculator(
+    model_name="EquiformerV2-31M-S2EF-OC20-All+MD",
+    local_cache="pretrained_models",
+    cpu=False,
+)
+
+# 2. Loop over all VASP files and predict
+records = []
+for fn in os.listdir(input_dir):
+    if not fn.endswith(".vasp"):
+        continue
+    atoms = read(os.path.join(input_dir, fn))
+    atoms.calc = calc
+    e_ads = atoms.get_potential_energy()
+    records.append({"file": fn, "adsorption_energy_eV": e_ads})
+    print(f"{fn}: {e_ads:.3f} eV")
+
+# 3. Save to CSV
+os.makedirs(os.path.dirname(output_csv), exist_ok=True)
+pd.DataFrame(records).to_csv(output_csv, index=False)
+print(f"\nAll predictions saved to {output_csv}")
+```
+Run:
+```bash
+python scripts/predict_quick.py
+```
+
 
 
 
