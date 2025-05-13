@@ -109,15 +109,21 @@ python add_adsorbate.py \
 ### Quickstart: Batch Prediction with fairchem 
 
 ```python
+### Quickstart: Batch Prediction with fairchem + BFGS Relaxation
+
+```python
 #!/usr/bin/env python3
 from fairchem.core import OCPCalculator
 from ase.io import read
+from ase.optimize import LBFGS
 import pandas as pd
 import os
 
 # ─── User settings ─────────────────────────────────────────
 input_dir  = "data/HEA-adsorbate"          # your folder of .vasp models
 output_csv = "results/predictions.csv"     # where to save predictions
+fmax       = 0.05                          # force convergence criterion (eV/Å)
+maxsteps   = 100                           # max relaxation steps
 # ────────────────────────────────────────────────────────────
 
 # 1. Initialize the pretrained EquiformerV2 model
@@ -127,21 +133,29 @@ calc = OCPCalculator(
     cpu=False,
 )
 
-# 2. Loop over all VASP files and predict
 records = []
 for fn in os.listdir(input_dir):
     if not fn.endswith(".vasp"):
         continue
+
+    # 2. Read slab + adsorbate and attach calculator
     atoms = read(os.path.join(input_dir, fn))
     atoms.calc = calc
+
+    # 3. Relax geometry with LBFGS
+    dyn = LBFGS(atoms, logfile=None)
+    dyn.run(fmax=fmax, steps=maxsteps)
+
+    # 4. Compute adsorption energy
     e_ads = atoms.get_potential_energy()
     records.append({"file": fn, "adsorption_energy_eV": e_ads})
     print(f"{fn}: {e_ads:.3f} eV")
 
-# 3. Save to CSV
+# 5. Save all predictions
 os.makedirs(os.path.dirname(output_csv), exist_ok=True)
 pd.DataFrame(records).to_csv(output_csv, index=False)
 print(f"\nAll predictions saved to {output_csv}")
+
 ```
 Run:
 ```bash
