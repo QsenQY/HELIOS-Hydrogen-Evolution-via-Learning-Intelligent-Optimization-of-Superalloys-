@@ -106,7 +106,7 @@ python add_adsorbate.py \
 - `--margin`      : Minimum height margin above the original surface in Å (default: 0.2)  
 - `--adsorbate`   : Adsorbate element symbol (currently supports only `H` or `O`, default: `H`; support for other species coming soon)  
 
-### Quickstart: Batch Prediction with fairchem (no `main()`)
+### Quickstart: Batch Prediction with fairchem 
 
 ```python
 #!/usr/bin/env python3
