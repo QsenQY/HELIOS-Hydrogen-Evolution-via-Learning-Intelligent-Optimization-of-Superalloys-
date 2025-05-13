@@ -40,7 +40,7 @@ git submodule update --init --recursive
 - **Source (pinned)**:  
   https://github.com/QsenQY/mattergen/tree/ec029d177c93709fa9a2ea4e48b872760d09c63b
 
-### Generate HEAs Structue
+### Generate HEAs Structues
 ### `generate_hea.py`
 High-throughput generation of HEA slab structures given an element list and cell parameters.
 
@@ -78,7 +78,7 @@ python generate_hea.py \
 
 
 
-### Find adsorption and places a adsorbate
+### Find adsorption and places adsorbate
 ### `add_adsorbate.py`
 Automatically identifies surface adsorption sites on prebuilt HEA slabs (via convex‐hull screening) and places a specified adsorbate (e.g. H) at each site, writing one VASP POSCAR per site.
 **Usage**  
