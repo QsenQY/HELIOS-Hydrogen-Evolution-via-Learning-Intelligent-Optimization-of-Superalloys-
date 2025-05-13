@@ -7,7 +7,7 @@ Machine learning drives automated modeling of high-entropy alloys and prediction
 High-entropy alloy materials demonstrate exceptional catalytic properties due to their distinctive multi-component attributes and electronic effects. Nonetheless, the extensive data landscape of high-entropy alloys presents substantial hurdles in identifying high-performance catalysts. Compounding this challenge is the anisotropic character of surface sites within each catalyst, rendering performance prediction exceedingly difficult with conventional computational techniques. Although contemporary machine learning models have achieved significant advances in predicting properties for specific principal element combinations of high-entropy alloys, they encounter difficulties when modeling random combinations of principal elements and their concentrations. In this context, we introduce a closed-loop high-throughput workflow that integrates high-throughput automated modeling and performance prediction of high-entropy alloys and adsorption structures, along with a high-throughput synthesis method leveraging microchannel technology. We apply a previously established thermodynamic model to forecast the stability of principal element combinations and harness the MatterGen high-throughput modeling approach to screen 133,233 thermodynamically stable high-entropy alloy materials. Utilizing the high-throughput automated workflow, we have generated over 1,160,000 hydrogen atom adsorption models and, for the first time, have successfully predicted hydrogen adsorption energies using the EquiformerV2 model, pinpointing five high-entropy alloy materials with superior catalytic performance. These materials have been successfully synthesized via microchannel technology, and electrochemical experiments have confirmed their outstanding catalytic properties (overpotential = 5.5–9 mV). Statistical analysis indicates that the performance of active sites on high-entropy alloy surfaces adheres to a bimodal distribution. The unique electronic and structural synergy in high-entropy alloys substantially diminishes the inherent properties of principal elements, leading to localized averaging effects. This research presents innovative concepts and methodologies for navigating the data space of high-entropy alloy materials and for high-throughput prediction of catalytic performance.
 
 
-## Download Data
+## Data release
 
 
 - **v1.1** Release:  
@@ -39,3 +39,78 @@ git submodule update --init --recursive
 
 - **Source (pinned)**:  
   https://github.com/QsenQY/mattergen/tree/ec029d177c93709fa9a2ea4e48b872760d09c63b
+
+### Generate HEAs Structue
+### `generate_hea.py`
+High-throughput generation of HEA slab structures given an element list and cell parameters.
+
+**Usage**  
+```bash
+# View all available options
+python generate_hea.py --help
+
+# Example: generate HEA-1–HEA-5 slabs and save to data/HEA-slabs/
+python generate_hea.py \
+  --structures fcc,bcc \
+  --miller 1 1 1 \
+  --layers 4 \
+  --vacuum 12.0 \
+  --supercell 3 3 \
+  --num_alloys 500 \
+  --min_elements 5 \
+  --max_elements 7 \
+  --output ./data/HEA-slabs \
+  --enthalpy_file path/to/Mixing_Enthalpy.xlsx
+```
+**Arguments**  
+- `--num_alloys`     : Number of random HEA structures to generate (int, default: 1000)  
+- `--min_elements`   : Minimum number of distinct elements per alloy (int, default: 5)  
+- `--max_elements`   : Maximum number of distinct elements per alloy (int, default: 7)  
+- `--structures`     : Comma-separated list of crystal lattices to sample (`fcc`, `bcc`, `hcp`; default: `"fcc,bcc,hcp"`)  
+- `--miller`         : Miller indices for the slab surface cut, three integers (e.g. `1 1 1`; default: `1 1 1`)  
+- `--layers`         : Number of atomic layers in each slab (int, default: 4)  
+- `--vacuum`         : Vacuum thickness along z-axis in Å (float, default: 10.0)  
+- `--supercell`      : In-plane supercell repetition factors a b (two ints, default: `2 3`)  
+- `--output`         : Output directory for POSCAR files and CSV summary (string, default: `./HEA_slabs`)  
+- `--enthalpy_file`  : Path to Excel file containing the mixing enthalpy matrix (string, **required**)  
+
+
+
+
+
+### Find adsorption and places a adsorbate
+### `add_adsorbate.py`
+Automatically identifies surface adsorption sites on prebuilt HEA slabs (via convex‐hull screening) and places a specified adsorbate (e.g. H) at each site, writing one VASP POSCAR per site.
+**Usage**  
+```bash
+# View all available options
+python add_adsorbate.py --help
+
+# Example: on each .vasp slab in data/HEA-slabs, identify the top-70th-percentile atoms,
+# generate Top/Bridge/Hollow sites 1.8 Å above the surface, and write results to data/HEA-adsorbate/
+python add_adsorbate.py \
+  --input_dir  ../data/HEA-slabs \
+  --output_dir ../data/HEA-adsorbate \
+  --percentile 70      \
+  --ads_dist   1.8     \
+  --dist_thr   3.0     \
+  --margin     0.2     \
+  --adsorbate  H
+```
+**Arguments**  
+- `--input_dir`   : Directory containing slab files (`.vasp` or `.xyz`)  
+- `--output_dir`  : Directory to write slab + adsorbate POSCARs  
+- `--percentile`  : z‐coordinate screening percentile for candidate surface atoms (default: 70)  
+- `--ads_dist`    : Vertical distance above surface to place adsorbate in Å (default: 1.8)  
+- `--dist_thr`    : Max interatomic distance in Å for bridge/hollow site detection (default: 3.0)  
+- `--margin`      : Minimum height margin above the original surface in Å (default: 0.2)  
+- `--adsorbate`   : Adsorbate element symbol (currently supports only `H` or `O`, default: `H`; support for other species coming soon)  
+ 
+
+
+
+
+
+
+
+
