@@ -1,6 +1,6 @@
 # Physics-constrained High-entropy Optimization and Exploration (PHEONIX) framework
 
-![Workflow Diagram](workflow.png)
+![Workflow Diagram](workflow2.png)
 
 ## Introduction
 
